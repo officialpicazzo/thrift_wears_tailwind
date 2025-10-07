@@ -12,6 +12,7 @@
       background: linear-gradient(135deg, #f3e8ff, #e9d5ff);
       min-height: 100vh;
     }
+
     header {
       background: #a855f7;
       color: #fff;
@@ -19,6 +20,90 @@
       text-align: center;
       font-size: 1.2rem;
     }
+
+    /* 💫 New Login Section */
+    .login-section {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 85vh;
+      padding: 20px;
+    }
+    .login-container {
+      display: flex;
+      max-width: 900px;
+      width: 100%;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+    .login-image {
+      flex: 1;
+      background: linear-gradient(to bottom right, #a855f7, #9333ea);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .login-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .login-box {
+      flex: 1;
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      text-align: center;
+    }
+    .login-box h2 {
+      margin-bottom: 10px;
+      color: #4c1d95;
+      font-size: 1.8rem;
+    }
+    .login-box p.subtitle {
+      color: #666;
+      margin-bottom: 20px;
+    }
+    .login-box input {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    .login-box button {
+      width: 100%;
+      background: #a855f7;
+      color: #fff;
+      margin-top: 10px;
+      font-weight: bold;
+      border: none;
+      border-radius: 6px;
+      padding: 10px;
+      transition: 0.3s;
+    }
+    .login-box button:hover {
+      background: #7e22ce;
+    }
+    #login-error {
+      color: red;
+      font-size: 0.9rem;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 768px) {
+      .login-container {
+        flex-direction: column;
+      }
+      .login-image {
+        display: none;
+      }
+    }
+
+    /* Existing Admin Styles */
     .container {
       max-width: 1000px;
       margin: 20px auto;
@@ -42,8 +127,8 @@
       background: #a855f7;
       color: #fff;
     }
-    tr.paid { background: #dcfce7; }   /* 💚 Green for Paid */
-    tr.pending { background: #fef3c7; }/* 🟠 Yellow for Pending */
+    tr.paid { background: #dcfce7; }
+    tr.pending { background: #fef3c7; }
     button {
       border: none;
       border-radius: 5px;
@@ -53,29 +138,6 @@
     .delete-btn {
       background: red;
       color: white;
-    }
-    #login-form {
-      max-width: 380px;
-      margin: 50px auto;
-      background: #fff;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 3px 8px rgba(0,0,0,0.2);
-      text-align: center;
-    }
-    #login-form input {
-      width: 100%;
-      padding: 10px;
-      margin: 8px 0;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-    }
-    #login-form button {
-      width: 100%;
-      background: #a855f7;
-      color: #fff;
-      margin-top: 10px;
-      font-weight: bold;
     }
     #logout-btn {
       background: #444;
@@ -100,12 +162,6 @@
       border: 1px solid #aaa;
       margin-left: 10px;
     }
-    footer {
-      text-align: center;
-      padding: 20px;
-      color: #555;
-      font-size: 0.9rem;
-    }
     .top-bar {
       display: flex;
       justify-content: space-between;
@@ -113,61 +169,71 @@
       flex-wrap: wrap;
       gap: 10px;
     }
-    @media (max-width: 600px) {
-      table, th, td { font-size: 0.8rem; }
-      header { font-size: 1rem; }
+    footer {
+      text-align: center;
+      padding: 20px;
+      color: #555;
+      font-size: 0.9rem;
     }
   </style>
 </head>
 <body>
 <header>ALLINONE_COLLECTION — Admin Dashboard</header>
 
-<div class="container">
-  <!-- Login Form -->
-  <div id="login-form">
-    <h2>Admin Login</h2>
-    <input type="email" id="email" placeholder="Email" required>
-    <input type="password" id="password" placeholder="Password" required>
-    <button id="login-btn">Login</button>
-    <p id="login-error" style="color:red; font-size:0.9rem;"></p>
-  </div>
-
-  <!-- Orders Section -->
-  <div id="orders-section" style="display:none;">
-    <div class="top-bar">
-      <div>
-        <button id="logout-btn">Logout</button>
-        <button id="refresh-btn">🔄 Refresh</button>
-        <button id="export-btn">📦 Export Excel</button>
-      </div>
-      <div>
-        <label for="filter-status"><b>Filter:</b></label>
-        <select id="filter-status">
-          <option value="all">All</option>
-          <option value="paid">Paid</option>
-          <option value="pending">Pending</option>
-          <option value="cancelled">Cancelled</option>
-        </select>
-      </div>
+<!-- 💫 Updated Login Section -->
+<div id="login-form" class="login-section">
+  <div class="login-container">
+    <div class="login-image"> 
     </div>
 
-    <h2>Recent Orders</h2>
-    <table id="orders-table">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Email</th>
-          <th>Amount (₦)</th>
-          <th>Status</th>
-          <th>Reference</th>
-          <th>Date</th>
-          <th>Items</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
+    <div class="login-box">
+      <h2>Welcome Back, Admin 💼</h2>
+      <p class="subtitle">Sign in to manage your store and orders</p>
+
+      <input type="email" id="email" placeholder="Email" required>
+      <input type="password" id="password" placeholder="Password" required>
+
+      <button id="login-btn">Login</button>
+      <p id="login-error"></p>
+    </div>
   </div>
+</div>
+
+<!-- Orders Section -->
+<div id="orders-section" class="container" style="display:none;">
+  <div class="top-bar">
+    <div>
+      <button id="logout-btn">Logout</button>
+      <button id="refresh-btn">🔄 Refresh</button>
+      <button id="export-btn">📦 Export Excel</button>
+    </div>
+    <div>
+      <label for="filter-status"><b>Filter:</b></label>
+      <select id="filter-status">
+        <option value="all">All</option>
+        <option value="paid">Paid</option>
+        <option value="pending">Pending</option>
+        <option value="cancelled">Cancelled</option>
+      </select>
+    </div>
+  </div>
+
+  <h2>Recent Orders</h2>
+  <table id="orders-table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Email</th>
+        <th>Amount (₦)</th>
+        <th>Status</th>
+        <th>Reference</th>
+        <th>Date</th>
+        <th>Items</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 </div>
 
 <footer>© 2025 ALLINONE_COLLECTION — Admin Panel</footer>
@@ -221,7 +287,7 @@
 
     logoutBtn.addEventListener("click", () => {
       ordersSection.style.display = "none";
-      loginForm.style.display = "block";
+      loginForm.style.display = "flex";
       errorMsg.textContent = "";
     });
 
@@ -300,6 +366,5 @@
     }
   });
 </script>
-
 </body>
 </html>
