@@ -354,12 +354,21 @@
         <div class="font-semibold">Total</div>
         <div id="cartTotal" class="font-bold text-lg">₦0</div>
       </div>
-      <input id="customerEmail" type="email" placeholder="Email (for receipt)"
-        class="w-full px-3 py-2 rounded-lg border mb-2" />
-      <button id="checkoutBtn"
-        class="w-full px-4 py-3 rounded-lg bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition">
-        Checkout with Paystack
-      </button>
+      <input id="customerEmail" 
+       type="email" 
+       placeholder="Email (for receipt)" 
+       class="w-full px-3 py-2 rounded-lg border mb-3 text-sm focus:ring focus:ring-indigo-200" 
+       required />
+
+<textarea id="customerAddress"
+          placeholder="Delivery address (optional)"
+          class="w-full px-3 py-2 rounded-lg border mb-3 text-sm focus:ring focus:ring-indigo-200 resize-none"
+          rows="2"></textarea>
+<button id="checkoutBtn"
+        class="w-full px-4 py-3 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold transition">
+  Checkout with Paystack 💳
+</button>
+
     </div>
   </div>
 </aside>
@@ -458,18 +467,21 @@ overlay.onclick = () => {
 
     checkoutBtn.onclick = async () => {
       const email = document.getElementById("customerEmail").value.trim();
-      if (!email) return alert("Please enter your email");
-      const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
-      if (total <= 0) return alert("Your cart is empty");
+const address = document.getElementById("customerAddress").value.trim();
+if (!email) return alert("Please enter your email");
+const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
+if (total <= 0) return alert("Your cart is empty");
 
-      const reference = "ORDER-" + Date.now();
-      window.launchPaystack(total, email, reference, db, cart);
+const reference = "ORDER-" + Date.now();
+window.launchPaystack(total, email, reference, db, cart, address);
+
     };
   </script>
 
   <!-- ✅ PAYSTACK FUNCTION (Global, not inside module) -->
   <script>
-    window.launchPaystack = function(amountNaira, email, reference, db, cartItems) {
+   window.launchPaystack = function(amountNaira, email, reference, db, cartItems, address = "") {
+
       if (typeof PaystackPop === "undefined") {
         alert("⚠️ Paystack script not loaded properly.");
         return;
@@ -483,32 +495,34 @@ overlay.onclick = () => {
         currency: "NGN",
         callback: function(response) {
           // Save order to Firestore (REST API)
-          fetch("https://firestore.googleapis.com/v1/projects/thrift-store-ab60c/databases/(default)/documents/orders", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
+        fetch("https://firestore.googleapis.com/v1/projects/thrift-store-ab60c/databases/(default)/documents/orders", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    fields: {
+      email: { stringValue: email },
+      address: { stringValue: address || "Not provided" },
+      amount: { integerValue: amountNaira },
+      reference: { stringValue: response.reference },
+      date: { timestampValue: new Date().toISOString() },
+      status: { stringValue: "paid" },
+      items: {
+        arrayValue: {
+          values: cartItems.map(item => ({
+            mapValue: {
               fields: {
-                email: { stringValue: email },
-                amount: { integerValue: amountNaira },
-                reference: { stringValue: response.reference },
-                date: { timestampValue: new Date().toISOString() },
-                status: { stringValue: "paid" },
-                items: {
-                  arrayValue: {
-                    values: cartItems.map(item => ({
-                      mapValue: {
-                        fields: {
-                          name: { stringValue: item.name },
-                          qty: { integerValue: item.qty },
-                          price: { integerValue: item.price }
-                        }
-                      }
-                    }))
-                  }
-                }
+                name: { stringValue: item.name },
+                qty: { integerValue: item.qty },
+                price: { integerValue: item.price }
               }
-            })
-          })
+            }
+          }))
+        }
+      }
+    }
+  })
+})
+
           .then(() => {
             document.getElementById("cartDrawer").style.transform = "translateX(100%)";
             alert("✅ Payment successful! Order saved.");

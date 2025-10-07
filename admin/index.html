@@ -175,6 +175,102 @@
       color: #555;
       font-size: 0.9rem;
     }
+
+
+    /* 💅 Styling for search + filters */
+#searchInput, #startDate, #endDate {
+  max-width: 100%;
+}
+.flex {
+  display: flex;
+  flex-wrap: wrap;
+}
+.flex input, .flex button {
+  font-size: 0.9rem;
+}
+@media (max-width: 600px) {
+  .flex {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+/* 🌐 Make Admin Dashboard Fully Mobile Responsive */
+
+/* Ensure table scrolls on small screens */
+.container {
+  overflow-x: auto;
+}
+
+/* Table responsiveness */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  min-width: 700px; /* prevents breaking of columns */
+}
+
+/* Reduce padding on small screens */
+@media (max-width: 768px) {
+  header {
+    font-size: 1rem;
+    padding: 10px;
+  }
+
+  .container {
+    margin: 10px;
+    padding: 15px;
+  }
+
+  table th, table td {
+    padding: 8px;
+    font-size: 0.85rem;
+  }
+
+  .top-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  #filter-status, #searchInput, #startDate, #endDate {
+    width: 100%;
+  }
+
+  #refresh-btn, #export-btn, #logout-btn {
+    width: 100%;
+    margin: 5px 0;
+  }
+
+  /* Make search and filters stack vertically */
+  .flex {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  /* Login screen adjustments */
+  .login-container {
+    flex-direction: column;
+    box-shadow: none;
+  }
+
+  .login-box {
+    padding: 25px;
+  }
+
+  .login-box h2 {
+    font-size: 1.4rem;
+  }
+
+  .login-box input {
+    padding: 8px;
+  }
+
+  .login-box button {
+    padding: 9px;
+  }
+}
+
   </style>
 </head>
 <body>
@@ -218,9 +314,42 @@
     </div>
   </div>
 
-  <h2>Recent Orders</h2>
-  <table id="orders-table">
-    <thead>
+<h2>Recent Orders</h2>
+
+<!-- 🔍 Search & Date Filter -->
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-5 gap-3">
+  <div class="flex items-center gap-2 w-full sm:w-2/3">
+    <input
+      id="searchInput"
+      type="text"
+      placeholder="Search by email, address, or reference..."
+      class="flex-1 px-3 py-2 border rounded-lg shadow-sm focus:ring focus:ring-purple-200 focus:outline-none"
+    />
+  </div>
+
+  <div class="flex gap-2 w-full sm:w-auto">
+    <input
+      id="startDate"
+      type="date"
+      class="px-3 py-2 border rounded-lg shadow-sm focus:ring focus:ring-purple-200 focus:outline-none"
+    />
+    <input
+      id="endDate"
+      type="date"
+      class="px-3 py-2 border rounded-lg shadow-sm focus:ring focus:ring-purple-200 focus:outline-none"
+    />
+    <button
+      id="clearFilters"
+      class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg text-sm font-medium"
+    >
+      Clear
+    </button>
+  </div>
+</div>
+
+<!-- 🧾 Orders Table -->
+<table id="orders-table">
+<thead>
       <tr>
         <th>#</th>
         <th>Email</th>
@@ -365,6 +494,51 @@
       });
     }
   });
+  // 🧭 SEARCH & DATE FILTER LOGIC
+const searchInput = document.getElementById("searchInput");
+const startDateInput = document.getElementById("startDate");
+const endDateInput = document.getElementById("endDate");
+const clearFilters = document.getElementById("clearFilters");
+const ordersTableElement = document.getElementById("orders-table");
+
+function filterOrders() {
+  const filterText = searchInput.value.toLowerCase();
+  const startDate = startDateInput.value ? new Date(startDateInput.value) : null;
+  const endDate = endDateInput.value ? new Date(endDateInput.value) : null;
+  const rows = ordersTableElement.getElementsByTagName("tr");
+
+  for (let i = 1; i < rows.length; i++) {
+    const cells = rows[i].getElementsByTagName("td");
+    if (!cells.length) continue;
+
+    const email = cells[1].textContent.toLowerCase();
+    const reference = cells[4].textContent.toLowerCase();
+    const dateText = cells[5].textContent;
+    const date = new Date(dateText);
+
+    const textMatch =
+      email.includes(filterText) ||
+      reference.includes(filterText);
+
+    const dateMatch =
+      (!startDate || date >= startDate) &&
+      (!endDate || date <= endDate);
+
+    rows[i].style.display = textMatch && dateMatch ? "" : "none";
+  }
+}
+
+// 🔗 Event listeners
+searchInput.addEventListener("keyup", filterOrders);
+startDateInput.addEventListener("change", filterOrders);
+endDateInput.addEventListener("change", filterOrders);
+clearFilters.addEventListener("click", () => {
+  searchInput.value = "";
+  startDateInput.value = "";
+  endDateInput.value = "";
+  filterOrders();
+});
+
 </script>
 </body>
 </html>
